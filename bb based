@@ -1,0 +1,17 @@
+import pandas as pd
+import yfinance as yf
+import matplotlib.pyplot as plt
+
+stock = yf.download('AAPL', start='2020-01-01', end='2024-01-01')
+
+stock['SMA_20'] = stock['Close'].rolling(window=20).mean()
+stock['Upper_Band'] = stock['SMA_20'] + 2 * stock['Close'].rolling(window=20).std()
+stock['Lower_Band'] = stock['SMA_20'] - 2 * stock['Close'].rolling(window=20).std()
+
+plt.figure(figsize=(12,6))
+plt.plot(stock['Close'], label="Closing Price")
+plt.plot(stock['SMA_20'], label="20-day SMA", linestyle="--")
+plt.plot(stock['Upper_Band'], label="Upper Bollinger Band", linestyle="--")
+plt.plot(stock['Lower_Band'], label="Lower Bollinger Band", linestyle="--")
+plt.legend()
+plt.show()
