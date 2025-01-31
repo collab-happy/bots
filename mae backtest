@@ -1,0 +1,12 @@
+import pandas as pd
+import yfinance as yf
+
+stock = yf.download('AAPL', start='2020-01-01', end='2024-01-01')
+
+stock['SMA_50'] = stock['Close'].rolling(window=50).mean()
+stock['SMA_200'] = stock['Close'].rolling(window=200).mean()
+
+stock['Buy_Signal'] = (stock['SMA_50'] > stock['SMA_200'])
+stock['Sell_Signal'] = (stock['SMA_50'] < stock['SMA_200'])
+
+print(stock[['Close', 'SMA_50', 'SMA_200', 'Buy_Signal', 'Sell_Signal']].tail(10))
