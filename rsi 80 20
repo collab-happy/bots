@@ -1,0 +1,62 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Step 1: Simulate stock data
+np.random.seed(42)
+
+# Simulating stock data: 1000 data points (dates)
+dates = pd.date_range('2023-01-01', periods=100, freq='B')  # Business days
+data = pd.DataFrame(index=dates)
+
+# Simulating stock price (random walk)
+data['Adj Close'] = np.random.rand(len(data)) * 100 + 50  # Random stock price
+
+# Step 2: Calculate RSI (Relative Strength Index)
+delta = data['Adj Close'].diff()
+gain = (delta.where(delta > 0, 0)).fillna(0)
+loss = (-delta.where(delta < 0, 0)).fillna(0)
+avg_gain = gain.rolling(window=14).mean()
+avg_loss = loss.rolling(window=14).mean()
+rs = avg_gain / avg_loss
+data['RSI'] = 100 - (100 / (1 + rs))
+
+# Step 3: Implement Buy/Sell Strategy based on RSI
+buy_signals = []
+sell_signals = []
+
+for i in range(len(data)):
+    if data['RSI'].iloc[i] <= 20:  # Buy signal
+        buy_signals.append(data['Adj Close'].iloc[i])
+        sell_signals.append(np.nan)  # No sell
+    elif data['RSI'].iloc[i] >= 80:  # Sell signal
+        sell_signals.append(data['Adj Close'].iloc[i])
+        buy_signals.append(np.nan)  # No buy
+    else:
+        buy_signals.append(np.nan)
+        sell_signals.append(np.nan)
+
+# Step 4: Add Buy/Sell signals to the dataframe
+data['Buy_Signal'] = buy_signals
+data['Sell_Signal'] = sell_signals
+
+# Step 5: Plotting the results
+plt.figure(figsize=(12,6))
+
+# Plot the stock price
+plt.plot(data.index, data['Adj Close'], label='Stock Price', color='blue', alpha=0.5)
+
+# Plot Buy signals
+plt.scatter(data.index, data['Buy_Signal'], label='Buy Signal (RSI <= 20)', marker='^', color='green', alpha=1)
+
+# Plot Sell signals
+plt.scatter(data.index, data['Sell_Signal'], label='Sell Signal (RSI >= 80)', marker='v', color='red', alpha=1)
+
+# Adding title and labels
+plt.title('RSI-based Buy and Sell Signals')
+plt.xlabel('Date')
+plt.ylabel('Stock Price')
+plt.legend()
+
+# Show the plot
+plt.show()
