@@ -1,0 +1,8 @@
+import yfinance as yf
+
+#only using us market data indian available nahi hai
+ticker = "AAPL"  # Change the stock ticker
+stock = yf.Ticker(ticker)
+data = stock.history(period="1d", interval="1m")
+
+print(data[['Open', 'High', 'Low', 'Close', 'Volume']])
